@@ -1,0 +1,62 @@
+group: rds.aws.example
+name: DBInstance
+version: v1alpha1
+purpose: dbinstance
+provider:
+  baseURL: https://raw.githubusercontent.com/upbound/%s/%s/package/crds/%s
+  name: provider-aws
+  version: v1.6.0
+  crd:
+    file: rds.aws.upbound.io_instances.yaml
+    version: v1beta2
+ignore: false
+connectionSecretKeys:
+  - username
+  - password
+  - endpoint
+  - port
+compositions:
+  - name: compositedbinstance.rds.aws.example
+    provider: sop
+    default: true
+overrideFieldsInClaim:
+  - claimPath: spec.forProvider.masterUserPasswordSecretRef
+    managedPath: spec.forProvider.passwordSecretRef
+    ignore: false
+    overrideSettings:
+      property:
+        description: "The password for the master database user. This
+          password can contain any printable ASCII character except \"/\",
+          \"\"\", or \"@\". \n Constraints: Must contain from 8 to 41
+          characters."
+        properties:
+          key:
+            description: The key to select.
+            type: string
+          name:
+            description: Name of the secret.
+            type: string
+          namespace:
+            description: Namespace of the secret.
+            type: string
+        required:
+        - key
+        - name
+        - namespace
+        type: object
+      patches:
+        - fromFieldPath: spec.forProvider.masterUserPasswordSecretRef.key
+          policy:
+            fromFieldPath: Optional
+          toFieldPath: spec.forProvider.passwordSecretRef.key
+          type: FromCompositeFieldPat
+        - fromFieldPath: spec.forProvider.masterUserPasswordSecretRef.name
+          policy:
+            fromFieldPath: Optional
+          toFieldPath: spec.forProvider.passwordSecretRef.name
+          type: FromCompositeFieldPat
+        - fromFieldPath: spec.forProvider.masterUserPasswordSecretRef.namespace
+          policy:
+            fromFieldPath: Optional
+          toFieldPath: spec.forProvider.passwordSecretRef.namespace
+          type: FromCompositeFieldPat
